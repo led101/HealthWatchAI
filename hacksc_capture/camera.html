@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Capture Example</title>
+</head>
+<body>
+
+<video id="video" width="640" height="480" autoplay></video>
+<canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+
+<script>
+
+function sendImageDataToServer(imageDataUrl) {
+  // Define the URL where you want to send the image data
+  const serverUrl = 'http://localhost:3000/upload';
+
+  // Use fetch to send the POST request
+  fetch(serverUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ image: imageDataUrl, audio: "" })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
+
+async function startCameraCapture() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const context = canvas.getContext('2d');
+
+  // Access the user's camera
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+
+        // Take a picture every minute
+        setInterval(() => {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          var imageDataUrl = canvas.toDataURL('image/png');
+
+          // Output the image data URL to the console
+          // Send the image data URL to a server, etc.
+          console.log(imageDataUrl);
+          sendImageDataToServer(imageDataUrl);
+          
+          // Here you would handle the captured image data URL
+          // e.g., save it, send to a server, etc.
+
+        }, 20000); // 60000 milliseconds = 1 minute
+      })
+      .catch(err => {
+        console.error("An error occurred: " + err);
+      });
+  } else {
+    console.error("getUserMedia not supported on this browser!");
+  }
+}
+
+let mediaRecorder;
+let audioChunks = [];
+
+async function sendToServer(blob) {
+  console.log("sending audio to server")
+  const formData = new FormData();
+  formData.append('audio', blob);
+
+  try {
+    const response = await fetch('http://localhost:3000/upload_audio', { // This URL should point to your server's endpoint
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    // Handle success if necessary
+    console.log('Audio uploaded successfully');
+  } catch (error) {
+    console.error('Upload failed:', error);
+  }
+}
+
+async function startRecording() {
+  console.log("started recording.")
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const options = { mimeType: 'audio/webm' };
+  mediaRecorder = new MediaRecorder(stream, options);
+  
+  mediaRecorder.ondataavailable = event => {
+    audioChunks.push(event.data);
+  };
+
+  mediaRecorder.onstop = async () => {
+    console.log("stopped recording")
+    const audioBlob = new Blob(audioChunks, { 'type' : 'audio/wav' });
+    audioChunks = [];
+    sendToServer(audioBlob);
+  };
+
+  mediaRecorder.start();
+  // Stop recording after 20 seconds
+  setTimeout(() => {
+    mediaRecorder.stop();
+  }, 20000);
+}
+
+// Start the first recording
+startRecording();
+
+// Start the camera and picture capture
+startCameraCapture();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="/style.css" type="text/css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Monitoring Dashboard</title>
+  </head>
+  <body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto p-4">
+      <!-- Top bar -->
+      <div class="bg-white shadow flex justify-between p-4 mb-6">
+        <div class="font-bold text-xl">Patient: John Smith</div>
+        <div id="patientStatus" class="font-bold">Status: Loading...</div>
+        <div id="time_updated" class="">Last updated: Loading...</div>
+      </div>
+
+      <!-- Main content -->
+      <div class="flex mb-6">
+        <!-- Live Image -->
+        <div class="w-2/3 p-4 bg-white shadow mr-4">
+          <img
+            id="patientImage"
+            class="object-cover w-full"
+            src="path_to_image.jpg"
+            alt="Patient Image"
+          />
+        </div>
+
+        <!-- Sidebar for Vitals -->
+        <div class="w-1/3 p-4 bg-white shadow">
+          <div class="mb-4">
+            <div class="font-bold mb-2">Patient Details</div>
+            <div id="details" class="text-sm text-gray-600">Loading...</div>
+          </div>
+          <div class="mb-4">
+            <div class="font-bold mb-2">Audio transcription</div>
+            <div id="transcription" class="text-sm text-gray-600">
+              Loading...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <!-- <div class="bg-white shadow p-4"> -->
+        <!-- <div class="font-bold mb-2">Timeline</div> -->
+        <!-- <div id="timeline" class="flex -mx-2"> -->
+          <!-- Timeline items will be inserted here by JavaScript -->
+        <!-- </div> -->
+      <!-- </div> -->
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
